@@ -1,42 +1,32 @@
-//Implementing Harmonic Search Algorithm for bin packing problem
-
 #include<stdio.h>
 #include<stdlib.h>
-#include<time.h>
-#include<stdbool.h>
-
-//Harmonic Search Parameters
-#define nvar 5			//number of decision variables
-#define HMS 5			//Harmonic Memory Size
-#define HMCR 0.9		//Probability of selecting the components from HM members
-#define PAR 0.4			// Pitch Adjusting Rate : Probability of a candidate from the HM to be mutated
-#define max_iterations 100 
-
-
-/***************	1. Initiator : Initializes the harmonic memory	***************/
-
-void Initiator()
-{
-
-} 
-
-/***************	2. Fitness : Calculating fitness of each row	***************/
-double fitness()
-{
-
-}
-
-/***************	3. StopCondition : Terminates the program after reaching max iterations	***************/
-bool stopCondition()
-{
-
-}
-
 
 void main(){
-	int a;
-	printf("Enter a: ");
-	scanf("%d", &a);
+	
+	int i=0;
+	float harmonic_mem_size, hmcr, par, max_iterations, no_bin, no_obj;
+	float array[10], array2[10];
+	
+	FILE *fp = fopen("para.txt", "r");
+	
+	fscanf(fp, "%f", &harmonic_mem_size);
+	fscanf(fp, "%f", &hmcr);
+	fscanf(fp, "%f", &par);
+	fscanf(fp, "%f", &max_iterations);
+	fscanf(fp, "%f", &no_bin);
+	fscanf(fp, "%f", &no_obj);
+	
+	for(i=0; i<no_obj; i++)
+		fscanf(fp, "%f", &array[i]);
+	for(i=0; i<no_bin; i++)
+		fscanf(fp, "%f", &array2[i]);
+		
+	//Parameters	
+	printf("Parameters:%.1f %.1f %.1f %.1f %.1f %.1f\n", harmonic_mem_size, hmcr, par, max_iterations, no_bin, no_obj);
+	
+	for(i=0; i<no_obj; i++)
+		printf("\nObject %d Size: %.1f\n", i+1, array[i]);
 
-	printf("Enter a: %d", a);
+	for(i=0; i<no_bin; i++)
+		printf("\nBin %d Capacity: %.1f\n", i+1, array2[i]);
 }
