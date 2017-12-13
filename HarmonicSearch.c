@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<stdbool.h>
 
+//parameters
 int i=0;
 float harmonic_mem_size, hmcr, par, max_iterations, no_bin, no_obj;
 float bin[5], object[10];
@@ -30,7 +31,7 @@ void data_input(){
 
 }
 
-
+//allocates the bins to the objects
 bool randomGenerator(int index, int random){
 	for(int i=0; i<2; i++){
 		if(object[index] < bin[random]){
@@ -42,6 +43,7 @@ bool randomGenerator(int index, int random){
 	}
 }
 
+//a function to calculate number of bins used for each chromosome
 float fitness(int chromosome){
 	for(int i=0; i<no_bin; i++)
 		bin_count[i] = 0;
@@ -61,6 +63,7 @@ void initiator(){
 	for(int i=0; i<20; i++){
 		for(j=0; j<10; j++){
 			random = rand() % 5;
+			//checks the availability of space in the selected bin for current object
 			if(randomGenerator(j,random)){
 				HM[i][j] = random;
 			}
