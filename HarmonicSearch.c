@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
+#include<time.h>
 
 //parameters
 int i=0;
@@ -72,6 +73,35 @@ void initiator(){
 	}
 }
 
+//Generates new solution
+void newSolution(){
+	int dim;
+	int x = 0;
+	float rand1 = (double)(rand()%10)/10;
+	float rand2 = (double)(rand()%10)/10;
+
+	dim = rand() % 20;
+
+	printf("\nRand 1: %.1f\n", rand1);
+	printf("\nRand 2: %.1f\n", rand2);
+
+	printf("\nSelected chromosome from %d dimension of harmonic memory\n", dim);
+
+	while(x <= no_obj){
+		printf("%.0f ", HM[dim][x]);
+		x++;
+
+		if(rand1 < hmcr){
+			if(rand2 < par){
+				HM[dim][x] = rand()%5;
+			}
+		}
+
+		else
+			continue;
+	}
+
+}
 
 void display(){
 
@@ -91,10 +121,21 @@ void display(){
 		printf("\n");
 	}
 
+	newSolution();
+	printf("\n");
+	for(int i=0; i<20; i++){
+		for(int j=0; j<11; j++){
+			printf("%.0f ", HM[i][j]);
+		}
+		printf("\n");
+	}
+
 }
 
 void main(){
-		
+
+	srand(time(NULL));
+
 	data_input();
 	initiator();
 	display();
