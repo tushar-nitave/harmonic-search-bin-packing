@@ -3,5 +3,7 @@
 ### Four steps of harmonic search method
 ##### 1. Initialization of the harmonic memory (HM): Initially harmonic memory consists of number of randomly generated solution to the optimization probelm.
 ##### 2. Improvising a new solution from the HM.
+##### 3. Update the Harmonic Memory after evaluating new solution.
+##### 4. Repeat steps 2 and 3 until maximum iterations is reached.
 
 
