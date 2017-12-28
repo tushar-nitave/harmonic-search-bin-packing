@@ -144,14 +144,18 @@ void display(){
 	for(int i=0; i<max_iterations; i++)
 		newSolution();
 
+
+	printf("\n----------Calculated Penalties----------\n");
 	for(int i=0; i<harmonic_mem_size; i++){
 		penalty(i);
-		printf("\nWeight of Bins\n");
+		printf("\n\nWeight of Bins\n\n");
 		for(int i=0; i<no_bin; i++)
-			printf(" %d ", binWeight[i]);
+			printf("%d ", binWeight[i]);
 	}
+	printf("\n\n----------------------------------------");
 
-	printf("\n");
+	printf("\n\n");
+	printf("\nObjects Allocated to different bins\n\n");
 	for(int i=0; i<harmonic_mem_size; i++){
 		for(int j=0; j<no_obj+1; j++){
 			printf("%.0f ", HM[i][j]);
