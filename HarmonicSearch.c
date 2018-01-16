@@ -5,16 +5,28 @@
 
 //parameters
 int i=0;
-float harmonic_mem_size, hmcr, par, max_iterations;
-int no_bin, no_obj;
+float harmonic_mem_size;			//Harmonic Memory Size
+float hmcr;							//Harmonic memory consideration rate
+float par;							//Pitch adjusting rate
+float max_iterations;				//Maximum number of iterations
+int no_bin;							//No of bins available
+int no_obj;							//No of objects to be fitted
 float bin[1000], object[1000];
-float HM[20][11];
-float bin_count[1000];
-int random,j;
-int binWeight[1000];
+float HM[1000][1000];				
+float bin_count[1000];				//No of bins used for each chromosome
+int random_var,j;
+int binWeight[1000];				//temporary bin for penalty function
+int aggregate_bin_weight = 0;
+int temp_weight[1000];
+float temp_HM[1][1000];
+int flag = 0;
+int bestWeight;						//stores best weight of the population
 
 
-//This function imports data from the given dataset
+
+int penalty(int );
+
+//imports data from the given dataset
 void data_input(){
 
 	FILE *fp = fopen("para.txt", "r");
@@ -35,117 +47,137 @@ void data_input(){
 
 }
 
-//allocates the bins to the objects
-/*bool randomGenerator(int index, int random){
-	for(int i=0; i<3; i++){
-		if(object[index] < bin[random]){
-			bin[random] = bin[random] - object[index];
-			return true;
-		}
-		else
-			random = rand() % no_bin;
-	}
-	return false;
-}*/
-
-//a function to calculate number of bins used for each chromosome
-float fitness(int chromosome){
+//calculate number of bins used for each chromosome
+float fitness(int current_chromosome){
 	for(int i=0; i<no_bin; i++)
 		bin_count[i] = 0;
 
 	int temp = 0;
 	for(int i=0; i<no_obj; i++){
-		int val = HM[chromosome][i];
+		int val = HM[current_chromosome][i];
 		bin_count[val] = 1;
 	}
 	for(int i=0; i<no_bin; i++)
 		temp = temp + bin_count[i];
+
 	return temp;
 }
 
-//This function is used to initialize harmonic memory
+//initialize harmonic memory
 void initiator(){
 	for(int i=0; i<harmonic_mem_size; i++){
 		for(j=0; j<no_obj; j++){
-			random = rand() % no_bin;
-			//checks the availability of space in the selected bin for current object
-			//if(randomGenerator(j,random)){
-				HM[i][j] = random;
-			/*}
-			else{
-				randomGenerator(j, random+1);
-			}*/
-
+			random_var = rand() % no_bin;
+			HM[i][j] = random_var;
 		}
 		HM[i][j] = fitness(i);
+		temp_weight[i] = penalty(i);
 	}
+
+	flag = 1;
 }
 
 //Generates new solution
-void newSolution(){
+void newSolution(int chromosome){
 	int dim;
+	int i;
 	int x = 0;
-	float rand1 = (double)(rand()%10)/10;
-	float rand2 = (double)(rand()%10)/10;
+	float rand1;	//random value for HMCR
+	float rand2;	//random value for PAR
 
-	dim = rand() % 20;
+	for(i=0; i<no_obj; i++){
 
-	printf("\nRand 1: %.1f\n", rand1);
-	printf("\nRand 2: %.1f\n", rand2);
+		rand1 = (double)(rand()%10)/10;
+		rand2 = (double)(rand()%10)/10;
 
-	printf("\nSelected chromosome from %d dimension of harmonic memory\n", dim);
-
-	while(x < no_obj){
-		x++;
+		//printf("\nRandom 1: %.1f\n", rand1);
+		//printf("\nRandom 2: %.1f\n", rand2);
 
 		if(rand1 < hmcr){
 			if(rand2 < par){
-				HM[dim][x] = rand()%no_bin;
+				//HM[chromosome][i] = rand()%no_bin;
+				temp_HM[0][i] = rand()%no_bin;
 			}
 		}
 
-		else
+		else 
 			continue;
 	}
 
-	HM[dim][x] = fitness(dim);
+	penalty(chromosome);
+	HM[chromosome][i] = fitness(chromosome);
 
+	/*for(int i=0; i<no_obj+1; i++){
+		printf("%.0f ", HM[chromosome][i]);
+	}*/
+
+	//printf("\n");
+	/*for(int i=0; i<no_bin; i++)
+		printf("%d ", binWeight[i]);
+	printf("\n============\n");*/
 }
 
-void penalty(int row){
-	int temp;
+//calculates assigned weight for each bin
+int penalty(int row){
+	int temp = 0;
+	aggregate_bin_weight = 0;
+
 	for(int i=0; i<no_bin; i++)
 		binWeight[i] = bin[i];
+
 	for(int i=0; i<no_obj; i++){
-		temp = HM[row][i];
+		if(flag == 0)
+			temp = HM[row][i];
+		else
+			temp = temp_HM[0][i];
+
 		binWeight[temp] = binWeight[temp] - object[i];
 	}
+
+	for(int i=0; i<no_bin; i++){
+		if(binWeight[i] != bin[i]){
+			aggregate_bin_weight = aggregate_bin_weight + abs(binWeight[i]);
+		}
+	}
+
+	if(aggregate_bin_weight < temp_weight[row]){
+		temp_weight[row] = aggregate_bin_weight;
+		printf("%d\t", aggregate_bin_weight);
+		for(int i=0; i<no_obj; i++)
+			HM[row][i] = temp_HM[0][i];
+	}
+
+	else{
+		printf("%d\t", temp_weight[row]);	
+	}
+
+	return aggregate_bin_weight;
 
 }
 
 void display(){
 
 	//Parameters	
-	printf("Parameters:%.1f %.1f %.1f %.1f %.1f %.1f\n", harmonic_mem_size, hmcr, par, max_iterations, no_bin, no_obj);
+	//printf("Parameters:%.1f %.1f %.1f %.1f %d %d\n", harmonic_mem_size, hmcr, par, max_iterations, no_bin, no_obj);
 	
-	for(i=0; i<no_obj; i++)
+	/*for(i=0; i<no_obj; i++)
 		printf("\nObject %d Size: %.1f\n", i+1, object[i]);
 
 	for(i=0; i<no_bin; i++)
-		printf("\nBin %d Capacity: %.1f\n", i+1, bin[i]);
+		printf("\nBin %d Capacity: %.1f\n", i+1, bin[i]);*/
 
 	for(int i=0; i<harmonic_mem_size; i++){
 		for(int j=0; j<no_obj+1; j++){
 			printf("%.0f ", HM[i][j]);
-		}
+		}		
 		printf("\n");
 	}
 
-	for(int i=0; i<max_iterations; i++)
+	/*for(int i=0; i<max_iterations; i++)
 		newSolution();
 
 
-	printf("\n----------Calculated Penalties----------\n");
+	/*printf("\n----------Calculated Penalties----------\n");
 	for(int i=0; i<harmonic_mem_size; i++){
 		penalty(i);
 		printf("\n\nWeight of Bins\n\n");
@@ -161,16 +193,39 @@ void display(){
 			printf("%.0f ", HM[i][j]);
 		}
 		printf("\n");
-	}
+	}*/
 
 }
 
 void main(){
 
+	int i=0;
 	srand(time(NULL));
 
 	data_input();
 	initiator();
 	display();
+
+	printf("\n\n\t=============== Result =============== \n\n\n");
+	printf("\t\t Total Bin Weight\n\n");
+
+	while(i < max_iterations){
+		printf("\nIteration %d:\t", i+1);
+		for(int j=0; j<harmonic_mem_size; j++){
+			//printf("\nChromosome %d: ", j+1);
+			newSolution(j);
+		}
+		printf("\n");
+		i++;
+	}
+	
+	printf("\n\n\t=============== End =============== \n\n");
+
+	for(int i=0; i<harmonic_mem_size; i++){
+		for(int j=0; j<no_obj; j++){
+			printf("%0.f ", HM[i][j]);
+		}
+		printf("\n");
+	}
 }
 	
